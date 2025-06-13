@@ -57,12 +57,12 @@ USER mcpuser
 # Add local bin to PATH
 ENV PATH=/home/mcpuser/.local/bin:$PATH
 
-# Expose port
-EXPOSE 8080
+# Expose port for HTTP interface
+EXPOSE 9090
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
-    CMD python /app/scripts/health_check.py || exit 1
+    CMD curl -f http://localhost:9090/health || exit 1
 
-# Start command
-CMD ["python", "/app/src/main.py"]
+# Start command - use dual-mode server for both MCP and HTTP
+CMD ["python", "/app/src/dual_server.py"]

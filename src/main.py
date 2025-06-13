@@ -9,9 +9,6 @@ import signal
 import sys
 from pathlib import Path
 
-import uvicorn
-from fastapi import FastAPI
-
 # Add src and utils to path for local imports
 current_dir = Path(__file__).parent
 utils_dir = current_dir.parent / "utils"
@@ -43,9 +40,8 @@ class Application:
         
         # Initialize MCP server
         self.mcp_server = UnraidMCPServer(self.config)
-        await self.mcp_server.initialize()
         
-        self.logger.info("Unraid MCP Server started successfully")
+        self.logger.info("Unraid MCP Server initialized successfully")
         
     async def shutdown(self):
         """Cleanup on shutdown"""
@@ -80,26 +76,8 @@ async def main():
         # Initialize application
         await app.startup()
         
-        # Get the FastAPI app from MCP server
-        fastapi_app = app.mcp_server.get_app()
-        
-        # Get configuration
-        host = app.config.get("server.host", "0.0.0.0")
-        port = app.config.get("server.port", 8080)
-        
-        # Start the server
-        config = uvicorn.Config(
-            fastapi_app,
-            host=host,
-            port=port,
-            log_level="info",
-            access_log=True
-        )
-        
-        server = uvicorn.Server(config)
-        
-        # Run the server
-        await server.serve()
+        # Run the MCP server
+        await app.mcp_server.run()
         
     except Exception as e:
         if app.logger:

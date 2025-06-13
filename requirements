@@ -4,6 +4,9 @@ uvicorn[standard]>=0.24.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
 
+# MCP Protocol
+mcp>=1.0.0
+
 # System monitoring and management
 psutil>=5.9.0
 docker>=6.1.0
