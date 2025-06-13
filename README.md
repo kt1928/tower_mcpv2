@@ -62,7 +62,7 @@ An advanced Model Context Protocol (MCP) server designed specifically for Unraid
 
 1. **Download the template**:
    ```bash
-   wget https://raw.githubusercontent.com/kt1928/tower-mcp/main/unraid-template.xml
+   wget https://raw.githubusercontent.com/kt1928/tower_mcpv2/main/unraid-template.xml
    ```
 
 2. **Add to Unraid**:
@@ -74,8 +74,8 @@ An advanced Model Context Protocol (MCP) server designed specifically for Unraid
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/kt1928/tower-mcp.git
-   cd tower-mcp
+   git clone https://github.com/kt1928/tower_mcpv2.git
+   cd tower_mcpv2
    ```
 
 2. **Configure environment**:
@@ -88,6 +88,22 @@ An advanced Model Context Protocol (MCP) server designed specifically for Unraid
    ```bash
    docker-compose up -d
    ```
+
+### Method 4: Direct Docker Pull
+
+```bash
+docker pull kappy1928/tower_mcpv2:latest
+docker run -d \
+  --name unraid-mcp-server \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v /var/log:/host/var/log:ro \
+  -v /proc:/host/proc:ro \
+  -v /sys:/host/sys:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /mnt/user/appdata/unraid-mcp-server:/app/data \
+  kappy1928/tower_mcpv2:latest
+```
 
 ## ⚙️ Configuration
 
@@ -233,8 +249,8 @@ The server includes comprehensive health monitoring:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/kt1928/tower-mcp.git
-   cd tower-mcp
+   git clone https://github.com/kt1928/tower_mcpv2.git
+   cd tower_mcpv2
    ```
 
 2. **Install dependencies**:
@@ -250,7 +266,7 @@ The server includes comprehensive health monitoring:
 ### Building Docker Image
 
 ```bash
-docker build -t unraid-mcp-server .
+docker build -t kappy1928/tower_mcpv2:latest .
 ```
 
 ### Running Tests
@@ -301,7 +317,7 @@ Complete API documentation is available at:
 
 ### Getting Help
 
-- **GitHub Issues**: [Report bugs and request features](https://github.com/kt1928/tower-mcp/issues)
+- **GitHub Issues**: [Report bugs and request features](https://github.com/kt1928/tower_mcpv2/issues)
 - **Unraid Forums**: [Community support](https://forums.unraid.net/)
 - **Discord**: [Real-time chat support](https://discord.gg/unraid)
 

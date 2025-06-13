@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <Container version="2">
   <Name>UnraidMCPServer</Name>
-  <Repository>ghcr.io/kt1928/tower-mcp:latest</Repository>
-  <Registry>ghcr.io</Registry>
+  <Repository>kappy1928/tower_mcpv2:latest</Repository>
+  <Registry>docker.io</Registry>
   <Network>bridge</Network>
   <MyIP/>
   <Shell>bash</Shell>
   <Privileged>false</Privileged>
-  <Support>https://github.com/kt1928/tower-mcp</Support>
-  <Project>https://github.com/kt1928/tower-mcp</Project>
+  <Support>https://github.com/kt1928/tower_mcpv2</Support>
+  <Project>https://github.com/kt1928/tower_mcpv2</Project>
   <Overview>
     MCP (Model Context Protocol) Server for comprehensive Unraid system management. 
     Provides AI-powered tools for system diagnostics, Docker management, Plex integration, 
@@ -26,8 +26,8 @@
   </Overview>
   <Category>Tools:System</Category>
   <WebUI>http://[IP]:[PORT:8080]</WebUI>
-  <TemplateURL>https://raw.githubusercontent.com/kt1928/tower-mcp/main/unraid-template.xml</TemplateURL>
-  <Icon>https://raw.githubusercontent.com/kt1928/tower-mcp/main/icon.png</Icon>
+  <TemplateURL>https://raw.githubusercontent.com/kt1928/tower_mcpv2/main/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/kt1928/tower_mcpv2/main/icon.png</Icon>
   <ExtraParams>--restart=unless-stopped</ExtraParams>
   <PostArgs/>
   <CPUset/>

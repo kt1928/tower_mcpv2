@@ -8,8 +8,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt /tmp/
-RUN pip install --no-cache-dir --user -r /tmp/requirements.txt
+COPY requirements /tmp/
+RUN pip install --no-cache-dir --user -r /tmp/requirements
 
 # Runtime stage
 FROM python:3.11-slim

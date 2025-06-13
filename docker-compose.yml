@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    image: kappy1928/tower_mcpv2:latest
     container_name: unraid-mcp-server-dev
     restart: unless-stopped
     ports:
