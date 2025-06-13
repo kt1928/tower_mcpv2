@@ -29,10 +29,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Create non-root user
+# Create non-root user and groups
 RUN groupadd -g 999 mcpuser && \
+    groupadd -g 998 docker || true && \
     useradd -r -u 999 -g mcpuser mcpuser && \
-    usermod -a -G docker mcpuser
+    usermod -a -G docker mcpuser || true
 
 # Copy Python packages from builder
 COPY --from=builder /root/.local /home/mcpuser/.local

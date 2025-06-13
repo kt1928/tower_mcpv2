@@ -10,7 +10,7 @@ on:
 env:
   REGISTRY_DOCKERHUB: docker.io
   REGISTRY_GHCR: ghcr.io
-  IMAGE_NAME: unraid-mcp-server
+  IMAGE_NAME: tower_mcpv2
 
 jobs:
   build:
@@ -31,7 +31,7 @@ jobs:
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY_DOCKERHUB }}
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: kappy1928
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
     - name: Log in to GitHub Container Registry
@@ -47,7 +47,7 @@ jobs:
       uses: docker/metadata-action@v5
       with:
         images: |
-          ${{ env.REGISTRY_DOCKERHUB }}/${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+          ${{ env.REGISTRY_DOCKERHUB }}/kappy1928/${{ env.IMAGE_NAME }}
           ${{ env.REGISTRY_GHCR }}/${{ github.repository }}
         tags: |
           type=ref,event=branch
@@ -72,9 +72,9 @@ jobs:
       if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
       uses: peter-evans/dockerhub-description@v3
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: kappy1928
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        repository: ${{ github.repository_owner }}/${{ env.IMAGE_NAME }}
+        repository: kappy1928/${{ env.IMAGE_NAME }}
         readme-filepath: ./README.md
 
   security-scan:
