@@ -13,8 +13,10 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 import uvicorn
 
-# Add utils to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
+# Add utils and src to path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir.parent / "utils"))
+sys.path.insert(0, str(current_dir))
 
 # Import tool modules
 from tools.system_diagnostics import SystemDiagnostics

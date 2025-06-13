@@ -6,13 +6,15 @@ import asyncio
 import json
 import logging
 import re
+import os
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
-import aiofiles
 from pathlib import Path
-import glob
+import aiofiles
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
-from mcp.types import Tool
+from . import Tool
 
 
 class LogAnalysis:

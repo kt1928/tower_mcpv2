@@ -7,10 +7,11 @@ import json
 import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
+import requests
 import aiohttp
 import xml.etree.ElementTree as ET
 
-from mcp.types import Tool
+from . import Tool
 
 
 class PlexIntegration:

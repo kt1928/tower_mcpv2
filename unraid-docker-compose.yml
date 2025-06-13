@@ -1,0 +1,84 @@
+version: '3.8'
+
+services:
+  unraid-mcp-server:
+    image: kappy1928/tower_mcpv2:latest
+    container_name: unraid-mcp-server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # System monitoring (read-only)
+      - /var/log:/host/var/log:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /boot:/host/boot:ro
+      
+      # Docker management
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker:/host/var/lib/docker:ro
+      
+      # Unraid specific paths
+      - /mnt/user:/host/mnt/user:ro
+      - /mnt/cache:/host/mnt/cache:ro
+      
+      # Persistent data
+      - /mnt/user/appdata/unraid-mcp-server/data:/app/data
+      - /mnt/user/appdata/unraid-mcp-server/config:/app/config
+      - /mnt/user/appdata/unraid-mcp-server/logs:/app/logs
+    environment:
+      # Basic configuration
+      - LOG_LEVEL=INFO
+      - TZ=America/New_York
+      - UNRAID_HOST=unraid.local
+      
+      # MCP Server settings
+      - MCP_PORT=8080
+      - ENABLE_SYSTEM_DIAGNOSTICS=true
+      - ENABLE_DOCKER_MANAGEMENT=true
+      - ENABLE_PLEX_INTEGRATION=true
+      - ENABLE_LOG_ANALYSIS=true
+      - ENABLE_MAINTENANCE=true
+      
+      # Plex integration (configure as needed)
+      - PLEX_URL=http://plex:32400
+      - PLEX_TOKEN=
+      
+      # Security and performance
+      - ENABLE_AUTH=false
+      - API_KEY=
+      - MAX_WORKERS=4
+      - CACHE_TTL=300
+      
+      # Health checks
+      - HEALTH_CHECK_INTERVAL=60
+      - CLEANUP_INTERVAL=3600
+    
+    # Add necessary capabilities for system monitoring
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+    cap_drop:
+      - ALL
+    
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "/app/scripts/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M 

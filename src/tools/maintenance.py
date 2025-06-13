@@ -11,8 +11,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import psutil
 import subprocess
+import os
 
-from mcp.types import Tool
+from . import Tool
 
 
 class Maintenance:

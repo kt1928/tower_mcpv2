@@ -12,7 +12,7 @@ import psutil
 import glob
 import os
 
-from mcp.types import Tool
+from . import Tool
 
 
 class SystemDiagnostics:
