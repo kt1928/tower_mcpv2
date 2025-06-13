@@ -13,8 +13,10 @@ import uvicorn
 from fastapi import FastAPI
 
 # Add src and utils to path for local imports
-sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
+current_dir = Path(__file__).parent
+utils_dir = current_dir.parent / "utils"
+sys.path.insert(0, str(utils_dir))
+sys.path.insert(0, str(current_dir))
 
 from mcp_server import UnraidMCPServer
 from logging_config import setup_logging

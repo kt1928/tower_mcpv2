@@ -15,7 +15,8 @@ import uvicorn
 
 # Add utils and src to path for imports
 current_dir = Path(__file__).parent
-sys.path.insert(0, str(current_dir.parent / "utils"))
+utils_dir = current_dir.parent / "utils"
+sys.path.insert(0, str(utils_dir))
 sys.path.insert(0, str(current_dir))
 
 # Import tool modules
