@@ -132,12 +132,12 @@ main() {
         print_warning "Could not determine public IP"
     fi
     
-    # Check if port 8080 is accessible
-    print_status "Checking port 8080 accessibility..."
-    if check_port localhost 8080; then
-        print_success "Port 8080 is accessible locally"
+    # Check if port 9090 is accessible
+    print_status "Checking port 9090 accessibility..."
+    if check_port localhost 9090; then
+        print_success "Port 9090 is accessible locally"
     else
-        print_warning "Port 8080 is not accessible locally"
+        print_warning "Port 9090 is not accessible locally"
     fi
     
     # Security recommendations
@@ -193,7 +193,7 @@ main() {
     echo
     print_status "Next steps:"
     echo "1. Restart your MCP server: docker-compose down && docker-compose up -d"
-    echo "2. Test local access: curl http://localhost:8080/health"
+    echo "2. Test local access: curl http://localhost:9090/health"
     echo "3. Configure external access using the method you chose"
     echo "4. Test external access from outside your network"
     echo "5. Monitor logs: docker logs unraid-mcp-server"
@@ -216,7 +216,7 @@ server {
     server_name mcp.yourdomain.com;
     
     location / {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://localhost:9090;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -261,7 +261,7 @@ services:
     container_name: unraid-mcp-server
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "9090:9090"
     env_file:
       - .env
     networks:
@@ -290,12 +290,12 @@ setup_port_forwarding() {
     echo "1. Access your router admin panel"
     echo "2. Go to Port Forwarding or Virtual Server"
     echo "3. Add rule:"
-    echo "   - External Port: 8080"
+    echo "   - External Port: 9090"
     echo "   - Internal IP: $LOCAL_IP"
-    echo "   - Internal Port: 8080"
+    echo "   - Internal Port: 9090"
     echo "   - Protocol: TCP"
     echo
-    echo "Access URL: http://$PUBLIC_IP:8080"
+    echo "Access URL: http://$PUBLIC_IP:9090"
     
     print_warning "Remember to enable authentication and use HTTPS in production!"
 }
@@ -339,12 +339,12 @@ setup_ssh_tunnel() {
     print_status "SSH Tunnel Commands:"
     echo
     echo "Local tunnel (from your local machine):"
-    echo "ssh -L 8080:localhost:8080 user@$LOCAL_IP"
-    echo "Then access: http://localhost:8080"
+    echo "ssh -L 9090:localhost:9090 user@$LOCAL_IP"
+    echo "Then access: http://localhost:9090"
     echo
     echo "Remote tunnel (from remote machine):"
-    echo "ssh -R 8080:localhost:8080 user@$LOCAL_IP"
-    echo "Then access: http://$LOCAL_IP:8080"
+    echo "ssh -R 9090:localhost:9090 user@$LOCAL_IP"
+    echo "Then access: http://$LOCAL_IP:9090"
     
     print_status "Note: SSH tunnel is good for development/testing, not production"
 }

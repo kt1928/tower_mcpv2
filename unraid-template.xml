@@ -25,7 +25,7 @@
     - Network and performance analysis
   </Overview>
   <Category>Tools:System</Category>
-  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <WebUI>http://[IP]:[PORT:9090]</WebUI>
   <TemplateURL>https://raw.githubusercontent.com/kt1928/tower_mcpv2/main/unraid-template.xml</TemplateURL>
   <Icon>https://raw.githubusercontent.com/kt1928/tower_mcpv2/main/icon.png</Icon>
   <ExtraParams>--restart=unless-stopped</ExtraParams>
@@ -35,7 +35,7 @@
   <DonateText/>
   <DonateLink/>
   <Requires/>
-  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="Web interface port for health checks and API access" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="WebUI Port" Target="9090" Default="9090" Mode="tcp" Description="Web interface port for health checks and API access" Type="Port" Display="always" Required="true" Mask="false">9090</Config>
   
   <!-- Volume Mappings for System Access -->
   <Config Name="System Logs" Target="/host/var/log" Default="/var/log" Mode="ro" Description="System log files for analysis" Type="Path" Display="always" Required="true" Mask="false">/var/log</Config>
@@ -62,7 +62,7 @@
   <Config Name="Plex Token" Target="PLEX_TOKEN" Default="" Mode="" Description="Plex authentication token" Type="Variable" Display="always" Required="false" Mask="true"></Config>
   
   <!-- MCP Server Configuration -->
-  <Config Name="MCP Port" Target="MCP_PORT" Default="8080" Mode="" Description="MCP server port" Type="Variable" Display="advanced" Required="false" Mask="false">8080</Config>
+  <Config Name="MCP Port" Target="MCP_PORT" Default="9090" Mode="" Description="MCP server port" Type="Variable" Display="advanced" Required="false" Mask="false">9090</Config>
   <Config Name="Enable System Diagnostics" Target="ENABLE_SYSTEM_DIAGNOSTICS" Default="true" Mode="" Description="Enable system monitoring tools" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
   <Config Name="Enable Docker Management" Target="ENABLE_DOCKER_MANAGEMENT" Default="true" Mode="" Description="Enable Docker container management" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
   <Config Name="Enable Plex Integration" Target="ENABLE_PLEX_INTEGRATION" Default="true" Mode="" Description="Enable Plex server integration" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>

@@ -96,7 +96,7 @@ docker pull kappy1928/tower_mcpv2:latest
 docker run -d \
   --name unraid-mcp-server \
   --restart=unless-stopped \
-  -p 8080:8080 \
+  -p 9090:9090 \
   -v /var/log:/host/var/log:ro \
   -v /proc:/host/proc:ro \
   -v /sys:/host/sys:ro \
@@ -149,7 +149,7 @@ The container requires several volume mappings for proper functionality:
      "mcpServers": {
        "unraid": {
          "command": "curl",
-         "args": ["http://your-unraid-ip:8080/mcp"]
+         "args": ["http://your-unraid-ip:9090/mcp"]
        }
      }
    }

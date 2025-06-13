@@ -9,7 +9,7 @@ services:
     container_name: unraid-mcp-server-dev
     restart: unless-stopped
     ports:
-      - "8080:8080"
+      - "9090:9090"
     volumes:
       # System monitoring (read-only)
       - /var/log:/host/var/log:ro
@@ -37,7 +37,7 @@ services:
       - UNRAID_HOST=${UNRAID_HOST:-localhost}
       
       # MCP Server settings
-      - MCP_PORT=8080
+      - MCP_PORT=9090
       - ENABLE_SYSTEM_DIAGNOSTICS=true
       - ENABLE_DOCKER_MANAGEMENT=true
       - ENABLE_PLEX_INTEGRATION=true
