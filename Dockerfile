@@ -44,6 +44,7 @@ RUN mkdir -p /app/data /app/config /app/logs && \
 
 # Copy application code
 COPY --chown=mcpuser:mcpuser src/ /app/src/
+COPY --chown=mcpuser:mcpuser utils/ /app/utils/
 COPY --chown=mcpuser:mcpuser config/ /app/config/
 COPY --chown=mcpuser:mcpuser scripts/ /app/scripts/
 
