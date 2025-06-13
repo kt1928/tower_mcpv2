@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  unraid-mcp-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: unraid-mcp-server-dev
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    volumes:
+      # System monitoring (read-only)
+      - /var/log:/host/var/log:ro
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro
+      
+      # Docker management
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker:/host/var/lib/docker:ro
+      
+      # Persistent data
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./logs:/app/logs
+      
+      # Development: mount source for hot reload
+      - ./src:/app/src:ro
+    environment:
+      # Basic configuration
+      - LOG_LEVEL=DEBUG
+      - TZ=America/New_York
+      - UNRAID_HOST=localhost
+      
+      # MCP Server settings
+      - MCP_PORT=8080
+      - ENABLE_SYSTEM_DIAGNOSTICS=true
+      - ENABLE_DOCKER_MANAGEMENT=true
+      - ENABLE_PLEX_INTEGRATION=true
+      - ENABLE_LOG_ANALYSIS=true
+      - ENABLE_MAINTENANCE=true
+      
+      # Plex integration (configure as needed)
+      - PLEX_URL=${PLEX_URL:-}
+      - PLEX_TOKEN=${PLEX_TOKEN:-}
+      
+      # Security and performance
+      - ENABLE_AUTH=false
+      - API_KEY=${API_KEY:-}
+      - MAX_WORKERS=4
+      - CACHE_TTL=300
+      
+      # Health checks
+      - HEALTH_CHECK_INTERVAL=60
+      - CLEANUP_INTERVAL=3600
+    
+    # Add necessary capabilities for system monitoring
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+    cap_drop:
+      - ALL
+    
+    # Security settings
+    security_opt:
+      - no-new-privileges:true
+    
+    # Health check
+    healthcheck:
+      test: ["CMD", "python", "/app/scripts/health_check.py"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    
+    # Resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 1G
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    
+    # Networks
+    networks:
+      - unraid-mcp-net
+
+  # Optional: Redis for caching (production use)
+  redis:
+    image: redis:7-alpine
+    container_name: unraid-mcp-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - unraid-mcp-net
+    profiles:
+      - production
+
+  # Optional: PostgreSQL for data storage (production use)
+  postgres:
+    image: postgres:15-alpine
+    container_name: unraid-mcp-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=unraid_mcp
+      - POSTGRES_USER=unraid_mcp
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - unraid-mcp-net
+    profiles:
+      - production
+
+networks:
+  unraid-mcp-net:
+    driver: bridge
+
+volumes:
+  redis-data:
+  postgres-data:

@@ -1,0 +1,90 @@
+# config/default_config.json
+{
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8080,
+    "workers": 4,
+    "enable_auth": false,
+    "api_key": null
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file": "/app/logs/unraid-mcp-server.log",
+    "max_size": "10MB",
+    "backup_count": 5
+  },
+  "tools": {
+    "system_diagnostics": {
+      "enabled": true,
+      "cache_ttl": 60,
+      "temperature_unit": "celsius",
+      "include_sensors": true
+    },
+    "docker_management": {
+      "enabled": true,
+      "socket_path": "/var/run/docker.sock",
+      "auto_cleanup": false,
+      "stats_interval": 30
+    },
+    "plex_integration": {
+      "enabled": true,
+      "url": null,
+      "token": null,
+      "timeout": 30,
+      "cache_ttl": 300
+    },
+    "log_analysis": {
+      "enabled": true,
+      "watch_paths": [
+        "/host/var/log/syslog",
+        "/host/var/log/messages",
+        "/host/var/log/kern.log"
+      ],
+      "error_patterns": [
+        "error",
+        "failed",
+        "critical",
+        "emergency",
+        "alert"
+      ],
+      "max_lines": 1000
+    },
+    "maintenance": {
+      "enabled": true,
+      "auto_cleanup": true,
+      "cleanup_interval": 3600,
+      "max_log_age_days": 30,
+      "max_cache_size_mb": 1024
+    }
+  },
+  "unraid": {
+    "host": "unraid.local",
+    "paths": {
+      "boot": "/host/boot",
+      "proc": "/host/proc",
+      "sys": "/host/sys",
+      "var_log": "/host/var/log",
+      "user_shares": "/host/mnt/user",
+      "cache": "/host/mnt/cache"
+    }
+  },
+  "cache": {
+    "enabled": true,
+    "ttl": 300,
+    "max_size": 1000
+  },
+  "health": {
+    "check_interval": 60,
+    "thresholds": {
+      "cpu_warning": 80,
+      "cpu_critical": 95,
+      "memory_warning": 85,
+      "memory_critical": 95,
+      "disk_warning": 85,
+      "disk_critical": 95,
+      "temperature_warning": 70,
+      "temperature_critical": 85
+    }
+  }
+}

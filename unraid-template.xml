@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>UnraidMCPServer</Name>
+  <Repository>ghcr.io/kt1928/tower-mcp:latest</Repository>
+  <Registry>ghcr.io</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/kt1928/tower-mcp</Support>
+  <Project>https://github.com/kt1928/tower-mcp</Project>
+  <Overview>
+    MCP (Model Context Protocol) Server for comprehensive Unraid system management. 
+    Provides AI-powered tools for system diagnostics, Docker management, Plex integration, 
+    log analysis, and automated maintenance. Connect with Claude or other AI assistants 
+    for intelligent server management.
+    
+    Features:
+    - Real-time system monitoring and diagnostics
+    - Docker container management and optimization
+    - Plex media server integration and analysis
+    - Intelligent log parsing and error detection
+    - Automated maintenance and optimization tasks
+    - SMART disk health monitoring
+    - Network and performance analysis
+  </Overview>
+  <Category>Tools:System</Category>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/kt1928/tower-mcp/main/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/kt1928/tower-mcp/main/icon.png</Icon>
+  <ExtraParams>--restart=unless-stopped</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI Port" Target="8080" Default="8080" Mode="tcp" Description="Web interface port for health checks and API access" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  
+  <!-- Volume Mappings for System Access -->
+  <Config Name="System Logs" Target="/host/var/log" Default="/var/log" Mode="ro" Description="System log files for analysis" Type="Path" Display="always" Required="true" Mask="false">/var/log</Config>
+  <Config Name="System Proc" Target="/host/proc" Default="/proc" Mode="ro" Description="System process information" Type="Path" Display="always" Required="true" Mask="false">/proc</Config>
+  <Config Name="System Sys" Target="/host/sys" Default="/sys" Mode="ro" Description="System hardware information" Type="Path" Display="always" Required="true" Mask="false">/sys</Config>
+  <Config Name="Unraid Boot" Target="/host/boot" Default="/boot" Mode="ro" Description="Unraid boot configuration" Type="Path" Display="always" Required="true" Mask="false">/boot</Config>
+  <Config Name="User Shares" Target="/host/mnt/user" Default="/mnt/user" Mode="ro" Description="Unraid user shares" Type="Path" Display="always" Required="false" Mask="false">/mnt/user</Config>
+  <Config Name="Cache Drives" Target="/host/mnt/cache" Default="/mnt/cache" Mode="ro" Description="Unraid cache drives" Type="Path" Display="always" Required="false" Mask="false">/mnt/cache</Config>
+  <Config Name="Docker Socket" Target="/var/run/docker.sock" Default="/var/run/docker.sock" Mode="rw" Description="Docker socket for container management" Type="Path" Display="always" Required="true" Mask="false">/var/run/docker.sock</Config>
+  <Config Name="Docker Data" Target="/host/var/lib/docker" Default="/var/lib/docker" Mode="ro" Description="Docker data directory" Type="Path" Display="always" Required="false" Mask="false">/var/lib/docker</Config>
+  
+  <!-- Persistent Data -->
+  <Config Name="App Config" Target="/app/config" Default="/mnt/user/appdata/unraid-mcp-server/config" Mode="rw" Description="Application configuration files" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/unraid-mcp-server/config</Config>
+  <Config Name="App Data" Target="/app/data" Default="/mnt/user/appdata/unraid-mcp-server/data" Mode="rw" Description="Application data and databases" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/unraid-mcp-server/data</Config>
+  <Config Name="App Logs" Target="/app/logs" Default="/mnt/user/appdata/unraid-mcp-server/logs" Mode="rw" Description="Application log files" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/unraid-mcp-server/logs</Config>
+  
+  <!-- Environment Variables -->
+  <Config Name="Log Level" Target="LOG_LEVEL" Default="INFO" Mode="" Description="Logging level (DEBUG, INFO, WARNING, ERROR)" Type="Variable" Display="always" Required="false" Mask="false">INFO</Config>
+  <Config Name="Timezone" Target="TZ" Default="America/New_York" Mode="" Description="Container timezone" Type="Variable" Display="always" Required="false" Mask="false">America/New_York</Config>
+  <Config Name="Unraid Host" Target="UNRAID_HOST" Default="unraid.local" Mode="" Description="Unraid hostname or IP" Type="Variable" Display="always" Required="false" Mask="false">unraid.local</Config>
+  
+  <!-- Plex Integration (Optional) -->
+  <Config Name="Plex URL" Target="PLEX_URL" Default="" Mode="" Description="Plex server URL (e.g., http://plex:32400)" Type="Variable" Display="always" Required="false" Mask="false"></Config>
+  <Config Name="Plex Token" Target="PLEX_TOKEN" Default="" Mode="" Description="Plex authentication token" Type="Variable" Display="always" Required="false" Mask="true"></Config>
+  
+  <!-- MCP Server Configuration -->
+  <Config Name="MCP Port" Target="MCP_PORT" Default="8080" Mode="" Description="MCP server port" Type="Variable" Display="advanced" Required="false" Mask="false">8080</Config>
+  <Config Name="Enable System Diagnostics" Target="ENABLE_SYSTEM_DIAGNOSTICS" Default="true" Mode="" Description="Enable system monitoring tools" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Enable Docker Management" Target="ENABLE_DOCKER_MANAGEMENT" Default="true" Mode="" Description="Enable Docker container management" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Enable Plex Integration" Target="ENABLE_PLEX_INTEGRATION" Default="true" Mode="" Description="Enable Plex server integration" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Enable Log Analysis" Target="ENABLE_LOG_ANALYSIS" Default="true" Mode="" Description="Enable log parsing and analysis" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  <Config Name="Enable Maintenance Tools" Target="ENABLE_MAINTENANCE" Default="true" Mode="" Description="Enable automated maintenance tools" Type="Variable" Display="advanced" Required="false" Mask="false">true</Config>
+  
+  <!-- Security and Performance -->
+  <Config Name="Enable Authentication" Target="ENABLE_AUTH" Default="false" Mode="" Description="Enable API authentication" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+  <Config Name="API Key" Target="API_KEY" Default="" Mode="" Description="API authentication key (auto-generated if empty)" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="Max Workers" Target="MAX_WORKERS" Default="4" Mode="" Description="Maximum worker threads" Type="Variable" Display="advanced" Required="false" Mask="false">4</Config>
+  <Config Name="Cache TTL" Target="CACHE_TTL" Default="300" Mode="" Description="Cache time-to-live in seconds" Type="Variable" Display="advanced" Required="false" Mask="false">300</Config>
+  
+  <!-- Health Check Configuration -->
+  <Config Name="Health Check Interval" Target="HEALTH_CHECK_INTERVAL" Default="60" Mode="" Description="Health check interval in seconds" Type="Variable" Display="advanced" Required="false" Mask="false">60</Config>
+  <Config Name="Cleanup Interval" Target="CLEANUP_INTERVAL" Default="3600" Mode="" Description="Cleanup interval in seconds" Type="Variable" Display="advanced" Required="false" Mask="false">3600</Config>
+</Container>
