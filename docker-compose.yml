@@ -28,11 +28,13 @@ services:
       
       # Development: mount source for hot reload
       - ./src:/app/src:ro
+    env_file:
+      - .env
     environment:
-      # Basic configuration
-      - LOG_LEVEL=DEBUG
-      - TZ=America/New_York
-      - UNRAID_HOST=localhost
+      # Basic configuration (can be overridden by .env)
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - TZ=${TZ:-America/New_York}
+      - UNRAID_HOST=${UNRAID_HOST:-localhost}
       
       # MCP Server settings
       - MCP_PORT=8080
@@ -42,12 +44,12 @@ services:
       - ENABLE_LOG_ANALYSIS=true
       - ENABLE_MAINTENANCE=true
       
-      # Plex integration (configure as needed)
+      # Plex integration (configure in .env file)
       - PLEX_URL=${PLEX_URL:-}
       - PLEX_TOKEN=${PLEX_TOKEN:-}
       
       # Security and performance
-      - ENABLE_AUTH=false
+      - ENABLE_AUTH=${ENABLE_AUTH:-false}
       - API_KEY=${API_KEY:-}
       - MAX_WORKERS=4
       - CACHE_TTL=300
