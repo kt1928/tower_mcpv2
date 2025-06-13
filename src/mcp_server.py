@@ -9,8 +9,9 @@ from typing import Dict, List, Any, Optional
 from datetime import datetime
 from pathlib import Path
 
-from mcp import McpServer
-from mcp.types import Tool, Resource
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
+import uvicorn
 
 # Add utils to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent / "utils"))
@@ -31,7 +32,11 @@ class UnraidMCPServer:
     def __init__(self, config: ConfigManager):
         self.config = config
         self.logger = logging.getLogger(__name__)
-        self.mcp_server = McpServer("unraid-mcp-server")
+        self.app = FastAPI(
+            title="Unraid MCP Server",
+            description="MCP Server for Unraid System Management",
+            version="1.0.0"
+        )
         
         # Tool instances
         self.tools: Dict[str, Any] = {}
@@ -39,6 +44,85 @@ class UnraidMCPServer:
         # Server state
         self.is_initialized = False
         self.start_time = None
+        
+        # Setup routes
+        self._setup_routes()
+        
+    def _setup_routes(self):
+        """Setup FastAPI routes"""
+        
+        @self.app.get("/")
+        async def root():
+            """Root endpoint with basic info"""
+            return {
+                "message": "Unraid MCP Server",
+                "version": "1.0.0",
+                "status": "running",
+                "tools": list(self.tools.keys())
+            }
+        
+        @self.app.get("/health")
+        async def health_check():
+            """Health check endpoint"""
+            uptime = datetime.now() - self.start_time if self.start_time else None
+            
+            health_data = {
+                "status": "healthy" if self.is_initialized else "initializing",
+                "server": "unraid-mcp-server",
+                "version": "1.0.0",
+                "uptime_seconds": uptime.total_seconds() if uptime else 0,
+                "tools_count": len(self.tools),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Tool-specific health checks
+            for tool_name, tool_instance in self.tools.items():
+                if hasattr(tool_instance, 'health_check'):
+                    try:
+                        tool_health = await tool_instance.health_check()
+                        health_data[f"{tool_name}_health"] = tool_health
+                    except Exception as e:
+                        health_data[f"{tool_name}_health"] = {"error": str(e)}
+            
+            return health_data
+        
+        @self.app.get("/tools")
+        async def list_tools():
+            """List available tools"""
+            tools_info = {}
+            for tool_name, tool_instance in self.tools.items():
+                try:
+                    tool_definitions = await tool_instance.get_tool_definitions()
+                    tools_info[tool_name] = {
+                        "tools": [tool.name for tool in tool_definitions],
+                        "description": tool_definitions[0].description if tool_definitions else "No description"
+                    }
+                except Exception as e:
+                    tools_info[tool_name] = {"error": str(e)}
+            
+            return tools_info
+        
+        @self.app.post("/tools/{tool_name}/{method}")
+        async def call_tool(tool_name: str, method: str, arguments: Dict[str, Any] = None):
+            """Call a specific tool method"""
+            if arguments is None:
+                arguments = {}
+            
+            try:
+                result = await self._handle_tool_call(tool_name, method, arguments)
+                return JSONResponse(content=result)
+            except Exception as e:
+                raise HTTPException(status_code=500, detail=str(e))
+        
+        @self.app.get("/mcp")
+        async def mcp_endpoint():
+            """MCP protocol endpoint for compatibility"""
+            return {
+                "protocol": "mcp",
+                "version": "1.0.0",
+                "server": "unraid-mcp-server",
+                "tools": list(self.tools.keys())
+            }
         
     async def initialize(self):
         """Initialize the MCP server and all tools"""
@@ -48,9 +132,6 @@ class UnraidMCPServer:
             
             # Initialize tool modules
             await self._initialize_tools()
-            
-            # Register tools with MCP server
-            await self._register_tools()
             
             # Setup periodic tasks
             await self._setup_periodic_tasks()
@@ -105,22 +186,6 @@ class UnraidMCPServer:
             )
             await self.tools["maintenance"].initialize()
             self.logger.info("Maintenance tool initialized")
-    
-    async def _register_tools(self):
-        """Register all tools with the MCP server"""
-        for tool_name, tool_instance in self.tools.items():
-            # Get tool definitions from each module
-            tool_definitions = await tool_instance.get_tool_definitions()
-            
-            for tool_def in tool_definitions:
-                # Register tool with MCP server
-                @self.mcp_server.tool(tool_def)
-                async def tool_handler(arguments: Dict[str, Any], tool_name=tool_name, method=tool_def.name):
-                    return await self._handle_tool_call(tool_name, method, arguments)
-                
-                self.logger.debug(f"Registered tool: {tool_def.name}")
-        
-        self.logger.info(f"Registered {sum(len(await t.get_tool_definitions()) for t in self.tools.values())} tools")
     
     async def _handle_tool_call(self, tool_name: str, method: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """Handle tool calls and route to appropriate tool module"""
@@ -202,37 +267,30 @@ class UnraidMCPServer:
                 self.logger.error(f"Cleanup task error: {e}", exc_info=True)
     
     async def get_server_info(self) -> Dict[str, Any]:
-        """Get server information and status"""
-        uptime = datetime.now() - self.start_time if self.start_time else None
-        
+        """Get server information"""
         return {
             "name": "unraid-mcp-server",
             "version": "1.0.0",
             "status": "running" if self.is_initialized else "initializing",
-            "uptime_seconds": uptime.total_seconds() if uptime else 0,
-            "start_time": self.start_time.isoformat() if self.start_time else None,
-            "tools": {
-                name: {
-                    "status": "active",
-                    "tool_count": len(await tool.get_tool_definitions())
-                }
-                for name, tool in self.tools.items()
-            }
+            "tools": list(self.tools.keys()),
+            "uptime_seconds": (datetime.now() - self.start_time).total_seconds() if self.start_time else 0,
+            "timestamp": datetime.now().isoformat()
         }
     
     async def cleanup(self):
         """Cleanup resources on shutdown"""
-        try:
-            self.logger.info("Cleaning up MCP server...")
-            
-            # Cleanup all tools
-            for tool_name, tool_instance in self.tools.items():
-                if hasattr(tool_instance, 'cleanup'):
+        self.logger.info("Cleaning up MCP server...")
+        
+        # Cleanup tool instances
+        for tool_name, tool_instance in self.tools.items():
+            if hasattr(tool_instance, 'cleanup'):
+                try:
                     await tool_instance.cleanup()
-                    self.logger.debug(f"Cleaned up tool: {tool_name}")
-            
-            self.is_initialized = False
-            self.logger.info("MCP server cleanup complete")
-            
-        except Exception as e:
-            self.logger.error(f"Error during cleanup: {e}", exc_info=True)
+                except Exception as e:
+                    self.logger.error(f"Error cleaning up {tool_name}: {e}")
+        
+        self.logger.info("MCP server cleanup complete")
+    
+    def get_app(self) -> FastAPI:
+        """Get the FastAPI application"""
+        return self.app

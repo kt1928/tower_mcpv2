@@ -78,30 +78,8 @@ async def main():
         # Initialize application
         await app.startup()
         
-        # Create FastAPI app for health checks and web interface
-        fastapi_app = FastAPI(
-            title="Unraid MCP Server",
-            description="MCP Server for Unraid System Management",
-            version="1.0.0"
-        )
-        
-        @fastapi_app.get("/health")
-        async def health_check():
-            """Health check endpoint"""
-            return {
-                "status": "healthy",
-                "server": "unraid-mcp-server",
-                "version": "1.0.0"
-            }
-        
-        @fastapi_app.get("/")
-        async def root():
-            """Root endpoint with basic info"""
-            return {
-                "message": "Unraid MCP Server",
-                "version": "1.0.0",
-                "status": "running"
-            }
+        # Get the FastAPI app from MCP server
+        fastapi_app = app.mcp_server.get_app()
         
         # Get configuration
         host = app.config.get("server.host", "0.0.0.0")
