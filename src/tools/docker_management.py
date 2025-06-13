@@ -8,6 +8,7 @@ import logging
 from typing import Dict, List, Any, Optional
 from datetime import datetime, timedelta
 import docker
+from docker.errors import DockerException
 import psutil
 
 from . import Tool
@@ -21,6 +22,7 @@ class DockerManagement:
         self.logger = logging.getLogger(__name__)
         self.docker_client = None
         self.socket_path = config.get("socket_path", "/var/run/docker.sock")
+        self.is_available = False
         
     async def initialize(self):
         """Initialize the Docker management module"""
@@ -30,14 +32,27 @@ class DockerManagement:
             self.docker_client = docker.DockerClient(base_url=f"unix://{self.socket_path}")
             # Test connection
             self.docker_client.ping()
+            self.is_available = True
             self.logger.info("Docker client initialized successfully")
         except DockerException as e:
-            self.logger.error(f"Failed to connect to Docker: {e}")
-            raise
+            self.logger.warning(f"Docker socket not available at {self.socket_path}: {e}")
+            self.is_available = False
+            # Don't raise the exception, just log it and continue
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize Docker client: {e}")
+            self.is_available = False
     
     async def get_tool_definitions(self) -> List[Tool]:
         """Return tool definitions for Docker management"""
         return [
+            Tool(
+                name="health_check",
+                description="Check Docker daemon availability and connection status",
+                inputSchema={
+                    "type": "object",
+                    "properties": {}
+                }
+            ),
             Tool(
                 name="list_containers",
                 description="List all Docker containers with their status and basic information",
@@ -182,7 +197,18 @@ class DockerManagement:
     async def handle_call(self, method: str, arguments: Dict[str, Any]) -> Dict[str, Any]:
         """Handle tool calls"""
         try:
-            if method == "list_containers":
+            # Check if Docker is available
+            if not self.is_available:
+                return {
+                    "status": "error",
+                    "error": "Docker is not available. Docker socket not accessible or Docker daemon not running.",
+                    "method": method,
+                    "timestamp": datetime.now().isoformat()
+                }
+            
+            if method == "health_check":
+                return await self._health_check()
+            elif method == "list_containers":
                 return await self._list_containers(
                     arguments.get("all", False),
                     arguments.get("filters", {})
@@ -224,6 +250,55 @@ class DockerManagement:
         except Exception as e:
             self.logger.error(f"Error in {method}: {e}", exc_info=True)
             return {"error": str(e), "method": method}
+    
+    async def _health_check(self) -> Dict[str, Any]:
+        """Check Docker daemon health and availability"""
+        try:
+            if not self.is_available:
+                return {
+                    "status": "error",
+                    "data": {
+                        "docker_available": False,
+                        "socket_path": self.socket_path,
+                        "message": "Docker daemon not accessible",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                }
+            
+            # Test connection
+            info = self.docker_client.info()
+            version = self.docker_client.version()
+            
+            return {
+                "status": "success",
+                "data": {
+                    "docker_available": True,
+                    "socket_path": self.socket_path,
+                    "docker_version": version["Version"],
+                    "api_version": version["ApiVersion"],
+                    "containers_running": info["ContainersRunning"],
+                    "containers_stopped": info["ContainersStopped"],
+                    "images": info["Images"],
+                    "system_info": {
+                        "os": info["OperatingSystem"],
+                        "architecture": info["Architecture"],
+                        "kernel_version": info["KernelVersion"],
+                        "docker_root_dir": info["DockerRootDir"]
+                    },
+                    "timestamp": datetime.now().isoformat()
+                }
+            }
+            
+        except Exception as e:
+            return {
+                "status": "error",
+                "data": {
+                    "docker_available": False,
+                    "socket_path": self.socket_path,
+                    "error": str(e),
+                    "timestamp": datetime.now().isoformat()
+                }
+            }
     
     async def _list_containers(self, all_containers: bool = False, filters: Dict = None) -> Dict[str, Any]:
         """List Docker containers"""
