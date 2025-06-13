@@ -29,10 +29,10 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
 
-# Create non-root user and groups FIRST
-RUN groupadd -g 999 mcpuser && \
-    groupadd -g 998 docker || true && \
-    useradd -r -u 999 -g mcpuser mcpuser && \
+# Create non-root user and groups FIRST (using different UID/GID to avoid conflicts)
+RUN groupadd -g 1000 mcpuser && \
+    groupadd -g 999 docker || true && \
+    useradd -r -u 1000 -g mcpuser mcpuser && \
     usermod -a -G docker mcpuser || true
 
 # Copy Python packages from builder
